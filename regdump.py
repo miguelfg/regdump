@@ -6,7 +6,7 @@ import os
 import yaml
 
 from modules import crawler
-from modules import parser
+from modules import parser, db_worker
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -33,10 +33,13 @@ if __name__ == "__main__":
     else:
         if not args.start:
             # get last index of record in database
-            sociedades_ids = crawler.old_fichas
-            max_id = max(sociedades_ids)
-            args.start = max_id
-            logger.info('found %i sociedades already in DB', max_id)
+            # sociedades_ids = crawler.old_fichas
+            # print(len(sociedades_ids))
+            # print(max(sociedades_ids))
+            # max_id = max(sociedades_ids)
+            # args.start = max_id
+            args.start = db_worker.find_max_ficha()
+            logger.info('found %i sociedades already in DB', args.start)
 
         if not args.stop:
             args.stop = args.start + args.size
