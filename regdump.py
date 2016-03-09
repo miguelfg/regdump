@@ -1,19 +1,19 @@
 #!/usr/bin/python3
-import sys
 import argparse
-import os
 import logging.config
+import os
+
 import yaml
-import Classes
-from modules import parser
+
 from modules import crawler
+from modules import parser
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 # create logger
-logging.config.dictConfig(yaml.load(open('logging.yaml','r').read()))
+logging.config.dictConfig(yaml.load(open('logging.yaml', 'r').read()))
 logger = logging.getLogger('regdump')
 
 if __name__ == "__main__":
@@ -30,11 +30,9 @@ if __name__ == "__main__":
         logger.info('performing query: %s', str(args.query))
         sociedades = crawler.query(args.query)
     else:
-        sociedades = crawler.brute_sociedades(args.start,args.stop,args.step)
+        sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
 
     logger.info('found %i sociedades', len(sociedades))
-    logger.info('found %i personas', len([item for sublist in [sociedad.personas for sociedad in sociedades] for item in sublist]))
+    logger.info('found %i personas',
+                len([item for sublist in [sociedad.personas for sociedad in sociedades] for item in sublist]))
     logger.info('regdump finished')
-
-
-
