@@ -36,9 +36,14 @@ if __name__ == "__main__":
             sociedades_ids = crawler.old_fichas
             max_id = max(sociedades_ids)
             args.start = max_id
+            logger.info('found %i sociedades already in DB', max_id)
+
         if not args.stop:
             args.stop = args.start + args.size
+
+        logger.info('it will scrape from %i to %i', args.start, args.stop)
         sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
+
 
     logger.info('found %i sociedades', len(sociedades))
     logger.info('found %i personas',
