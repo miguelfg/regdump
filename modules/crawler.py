@@ -55,10 +55,9 @@ def brute_sociedades(start, stop, step):
     lock = asyncio.Lock()
     # loop = asyncio.get_event_loop()
     # f = asyncio.wait([get_html(fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
-
-    headers = make_headers(user_agent=sample(user_agents, 1)[0])
     with aiohttp.ClientSession() as client:
-        f = asyncio.wait([get(client, ficha_url(fc), headers) for fc in fichas if fc not in old_fichas])
+        # headers = make_headers(user_agent=sample(user_agents, 1)[0])
+        # f = asyncio.wait([get(client, ficha_url(fc), headers) for fc in fichas if fc not in old_fichas])
         f = asyncio.wait([get_html(client, fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
         asyncio.get_event_loop().run_until_complete(f)
 
