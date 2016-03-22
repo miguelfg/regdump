@@ -9,3 +9,6 @@
 
 history.log
 .idea
+*.db
+*.sqlite
+*.sqlite3
