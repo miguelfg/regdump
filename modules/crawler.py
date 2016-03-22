@@ -53,15 +53,17 @@ def brute_sociedades(start, stop, step):
     fichas = range(start, stop, step)
     queue = []
     lock = asyncio.Lock()
-    loop = asyncio.get_event_loop()
+    # loop = asyncio.get_event_loop()
     # f = asyncio.wait([get_html(fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
-    # loop.run_until_complete(f)
+
+    headers = make_headers(user_agent=sample(user_agents, 1)[0])
     with aiohttp.ClientSession() as client:
-        # asyncio.get_event_loop().run_until_complete(get(client))
-        # asyncio.get_event_loop().run_until_complete([get_html(client, fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
+        f = asyncio.wait([get(client, ficha_url(fc), headers) for fc in fichas if fc not in old_fichas])
         f = asyncio.wait([get_html(client, fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
         asyncio.get_event_loop().run_until_complete(f)
-    loop.close()
+
+    # loop.run_until_complete(f)
+    # loop.close()
     return queue
 
 
@@ -83,7 +85,7 @@ async def get(client, *args, **kwargs):
     with client.get(args[0]) as response:
         # print(asyncio.wait(response.text()))
         assert response.status == 200
-        print(await response.text())
+        # print(await response.text())
         return await response.text()
         # yield from response
         # return (yield from response.read())
@@ -95,18 +97,14 @@ def get_html(client, url, queue, parser):
     headers = make_headers(user_agent=sample(user_agents, 1)[0])
     # conn = aiohttp.ProxyConnector(proxy='http://localhost:8118')
     with (yield from sem):
-        print("in sem")
         if parser != parse_query_result:
             body = get(client, ficha_url(url), headers=headers)  # , connector=conn)
-            print("body diff", body)
-            # print("body diff", body[0])
             yield from body
         elif parser == parse_query_result:
             body = get(client, url, headers=headers)  # , connector=conn)
             yield from body
         sleep(4)
     with (yield from lock):
-        print("add to queue")
         [queue.append(i) for i in parser(body)]
 
 
