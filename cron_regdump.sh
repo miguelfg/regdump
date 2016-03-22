@@ -7,6 +7,6 @@ source bin/activate
 # let the PATH figure out which version to run (based on what your
 # virtualenv has configured).
 
-export panadata_db='sqlite:////home/miguelfg/workspace/projects/apache_solr/prometheus/src/panadata_regdump/data/panama_registry.db'
+export PANADATA_DB='sqlite:////home/miguelfg/workspace/projects/apache_solr/prometheus/src/panadata_regdump/data/panama_registry.db'
 python /home/miguelfg/workspace/projects/apache_solr/prometheus/src/panadata_regdump/regdump.py --size 10
 #cdproject && python regdump.py --size 1

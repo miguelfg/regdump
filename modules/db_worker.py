@@ -5,7 +5,7 @@ import os
 from time import sleep
 import logging
 
-db_url = os.environ['panadata_db']
+db_url = os.environ['PANADATA_DB']
 # engine = create_engine(db_url, convert_unicode=True, encoding='latin-1',echo=False)
 engine = create_engine(db_url, convert_unicode=True, encoding='utf-8', echo=False)
 session_maker = sessionmaker(bind=engine)
