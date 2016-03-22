@@ -16,6 +16,14 @@ os.chdir(dname)
 logging.config.dictConfig(yaml.load(open('logging.yaml', 'r').read()))
 logger = logging.getLogger('regdump')
 
+
+def log_scraped(sociedades):
+    logger.info('found %i sociedades', len(sociedades))
+    logger.info('found %i personas',
+                len([item for sublist in [sociedad.personas for sociedad in sociedades] for item in sublist]))
+    logger.info('regdump finished')
+
+
 if __name__ == "__main__":
     """
     query: it is the 'FROM' parameter at the scraping URL:
@@ -38,6 +46,7 @@ if __name__ == "__main__":
     if args.query:
         logger.info('performing query: %s', str(args.query))
         sociedades = crawler.query(args.query)
+        log_scraped(sociedades)
     else:
         if not args.start:
             # get last index of record in database
@@ -53,11 +62,11 @@ if __name__ == "__main__":
         if not args.stop:
             args.stop = args.start + args.size
 
-        logger.info('it will scrape from %i to %i', args.start, args.stop)
-        sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
+        if args.start >= args.stop:
+            logger.warn('Not scraping anything, your stop parameter(%i) is lower than start parameter(%i)', args.stop, args.start)
+        else:
+            logger.info('it will scrape from %i to %i', args.start, args.stop)
+            sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
+            log_scraped(sociedades)
 
-
-    logger.info('found %i sociedades', len(sociedades))
-    logger.info('found %i personas',
-                len([item for sublist in [sociedad.personas for sociedad in sociedades] for item in sublist]))
     logger.info('regdump finished')
