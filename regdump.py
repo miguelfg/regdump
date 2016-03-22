@@ -17,6 +17,14 @@ logging.config.dictConfig(yaml.load(open('logging.yaml', 'r').read()))
 logger = logging.getLogger('regdump')
 
 if __name__ == "__main__":
+    """
+    query: it is the 'FROM' parameter at the scraping URL:
+        'http://201.224.39.199/scripts/nwwisapi.dll/conweb/MESAMENU?TODO=MER4&START=%s&FROM=%s' % (str(page), query))
+    start: index number to start scraping
+    stop: index number to stop scraping
+    size: if 'stop' is not provided, this is add to 'start' to calculate the numbers of records/fichas to scrape
+    step: is the size of the jump from one record to scrape to the next one, usually 1
+    """
     parser = argparse.ArgumentParser(description='Query registro-publico.gob.pa for sociedades.')
     parser.add_argument('--query', dest='query', type=str)
     parser.add_argument('--start', dest='start', type=int, default=None)
