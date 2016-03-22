@@ -1,21 +1,11 @@
-import requests
-from Classes import Sociedad, Persona, Asociacion, Fundacion, FundacionPersonas
-from queue import Empty
 import logging
-import Classes
 from Classes import *
 
 from modules import parser, db_worker
 from bs4 import BeautifulSoup, SoupStrainer
-from queue import Queue
-from Query import Query, SociedadQuery, FichaQuery
-from Worker import ProcessHTML
-import Worker
 from time import sleep
-from threading import active_count
-from urllib3 import HTTPConnectionPool, ProxyManager
-import asyncio
 from urllib3 import make_headers
+import asyncio
 import aiohttp
 from random import sample
 
@@ -64,8 +54,14 @@ def brute_sociedades(start, stop, step):
     queue = []
     lock = asyncio.Lock()
     loop = asyncio.get_event_loop()
-    f = asyncio.wait([get_html(fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
-    loop.run_until_complete(f)
+    # f = asyncio.wait([get_html(fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
+    # loop.run_until_complete(f)
+    with aiohttp.ClientSession() as client:
+        # asyncio.get_event_loop().run_until_complete(get(client))
+        # asyncio.get_event_loop().run_until_complete([get_html(client, fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
+        f = asyncio.wait([get_html(client, fc, queue, parse_sociedad_html) for fc in fichas if fc not in old_fichas])
+        asyncio.get_event_loop().run_until_complete(f)
+    loop.close()
     return queue
 
 
@@ -75,24 +71,42 @@ def generate_urls(url):
         yield (query_url(i, url) for i in range(page * 15, (page + 1) * 15, 15))
         page += 1
 
+# @asyncio.coroutine
+# def get(*args, **kwargs):
+#     response = aiohttp.request('GET', *args, **kwargs)
+#     yield from response
+#     return (yield from response.read())
+
+
+# @asyncio.coroutine
+async def get(client, *args, **kwargs):
+    with client.get(args[0]) as response:
+        # print(asyncio.wait(response.text()))
+        assert response.status == 200
+        print(await response.text())
+        return await response.text()
+        # yield from response
+        # return (yield from response.read())
+
 
 @asyncio.coroutine
-def get(*args, **kwargs):
-    response = yield from aiohttp.request('GET', *args, **kwargs)
-    return (yield from response.read())
-
-
-@asyncio.coroutine
-def get_html(url, queue, parser):
+# def get_html(url, queue, parser):
+def get_html(client, url, queue, parser):
     headers = make_headers(user_agent=sample(user_agents, 1)[0])
     # conn = aiohttp.ProxyConnector(proxy='http://localhost:8118')
     with (yield from sem):
+        print("in sem")
         if parser != parse_query_result:
-            body = yield from get(ficha_url(url), headers=headers)  # , connector=conn)
+            body = get(client, ficha_url(url), headers=headers)  # , connector=conn)
+            print("body diff", body)
+            # print("body diff", body[0])
+            yield from body
         elif parser == parse_query_result:
-            body = yield from get(url, headers=headers)  # , connector=conn)
+            body = get(client, url, headers=headers)  # , connector=conn)
+            yield from body
         sleep(4)
     with (yield from lock):
+        print("add to queue")
         [queue.append(i) for i in parser(body)]
 
 

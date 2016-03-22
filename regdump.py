@@ -18,10 +18,10 @@ logger = logging.getLogger('regdump')
 
 
 def log_scraped(sociedades):
+    # logger.info('found %s sociedades', type(sociedades))
     logger.info('found %i sociedades', len(sociedades))
     logger.info('found %i personas',
                 len([item for sublist in [sociedad.personas for sociedad in sociedades] for item in sublist]))
-    logger.info('regdump finished')
 
 
 if __name__ == "__main__":
