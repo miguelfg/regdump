@@ -38,7 +38,7 @@ if __name__ == "__main__":
             # print(max(sociedades_ids))
             # max_id = max(sociedades_ids)
             # args.start = max_id
-            args.start = db_worker.find_max_ficha()
+            args.start = db_worker.find_max_ficha() + 1
             logger.info('found %i sociedades already in DB', args.start)
 
         if not args.stop:
