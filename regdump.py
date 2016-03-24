@@ -31,7 +31,7 @@ if __name__ == "__main__":
         logger.info('performing query: %s', str(args.query))
         sociedades = crawler.query(args.query)
     else:
-        if not args.start:
+        if args.start is None:
             # get last index of record in database
             # sociedades_ids = crawler.old_fichas
             # print(len(sociedades_ids))
