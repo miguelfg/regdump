@@ -84,10 +84,13 @@ def generate_urls(url):
 @asyncio.coroutine
 def get(*args, **kwargs):
     try:
-        response = yield from aiohttp.request('GET', *args, **kwargs)
+        # response = yield from aiohttp.request('GET', *args, **kwargs)
+        response = yield from requests.get(args[0], **kwargs)
+        print(response.status_code)
     except Exception as ex:
         print(ex)
-    return (yield from response.read())
+    # return (yield from response.read())
+    return (yield from response.text)
 
 
 @asyncio.coroutine
