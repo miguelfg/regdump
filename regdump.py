@@ -18,7 +18,6 @@ logger = logging.getLogger('regdump')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Query registro-publico.gob.pa for sociedades.')
-    parser.add_argument('--query', dest='query', type=str)
     parser.add_argument('--start', dest='start', type=int, default=None)
     parser.add_argument('--stop', dest='stop', type=int, default=None)
     parser.add_argument('--size', dest='size', type=int, default=100)

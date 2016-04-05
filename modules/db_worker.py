@@ -8,6 +8,7 @@ import logging
 db_url = os.environ['PANADATA_DB']
 # engine = create_engine(db_url, convert_unicode=True, encoding='latin-1',echo=False)
 engine = create_engine(db_url, convert_unicode=True, encoding='utf-8', echo=False)
+
 session_maker = sessionmaker(bind=engine)
 Classes.Base.metadata.create_all(engine)
 logger = logging.getLogger('db_worker')
@@ -102,7 +103,6 @@ def get_fichas():
     try:
         return set(list(zip(*session.query(Classes.Sociedad.ficha).all()))[0])
     except Exception as e:
-        print(e)
         return set()
 
 def get_personas():
