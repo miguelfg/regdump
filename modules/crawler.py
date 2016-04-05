@@ -35,6 +35,7 @@ def query_url(page, query):
 def ficha_url(ficha):
     return ('http://201.224.39.199/scripts/nwwisapi.dll/conweb/MESAMENU?TODO=SHOW&ID=%s' % str(ficha))
 
+
 def brute_sociedades(start,stop,step):
     fichas = range(start,stop,step)
     queue=[]
@@ -47,7 +48,11 @@ def brute_sociedades(start,stop,step):
                 html = parse_sociedad_html(r.read())
             queue.append(html)
             sleep(4)
+
+    logger.info('found %i sociedades', len(queue))
+
     return queue
+
 
 def parse_sociedad_html(html):
     html = html.decode('ISO-8859-1', 'ignore')
