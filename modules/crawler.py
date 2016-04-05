@@ -45,8 +45,8 @@ def brute_sociedades(start,stop,step):
             headers={'User-Agent': ua}
             url = ficha_url(ficha)
             with urllib.request.urlopen(url) as r:
-                html = parse_sociedad_html(r.read())
-            queue.append(html)
+                sociedad = parse_sociedad_html(r.read())
+            queue.append(sociedad)
             sleep(4)
 
     logger.info('found %i sociedades', len(queue))
