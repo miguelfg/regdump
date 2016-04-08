@@ -96,7 +96,10 @@ def find_by_fichas(fichas):
 
 def find_max_ficha():
     session = session_maker()
-    return session.query(Classes.Sociedad.ficha).order_by(Classes.Sociedad.ficha.desc()).first()[0]
+    ultima_ficha = session.query(Classes.Sociedad.ficha).order_by(Classes.Sociedad.ficha.desc()).first()
+    if ultima_ficha:
+        return ultima_ficha[0]
+    return 0
 
 def get_fichas():
     session = session_maker()
