@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from fabric.api import env
-
 __author__ = 'miguelfg'
 
 
