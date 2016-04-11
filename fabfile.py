@@ -94,15 +94,23 @@ def install_server():
     # create virtualenv
     virtualenv_create()
 
-    # set up DB connection
+    # TODO: set up DB connection
 
     # install requirements
     with cd(PROJECT_DIR):
         with virtualenv():
             pip_install('-r requirements.txt')
 
-        # set permission and ownership to user!
+        # TODO: set permission and ownership to user!
+        # TODO: set db env variable
 
+
+# @task
+# @parallel
+# def TODO: reg_dump():
+# def TODO: reg_dump_test():
+# def TODO: reg_dump_check_history_log():
+# def TODO: reg_dump_check_db_records():
 
 @task
 def host_type():
