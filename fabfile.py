@@ -16,6 +16,7 @@ env.roledefs.update(prod_roles)
 
 env.use_ssh_config = True
 
+PROJECT_DIR = '/var/www/prometheus_panadata'
 
 ###########
 # COMMANDS
@@ -23,12 +24,32 @@ env.use_ssh_config = True
 @task
 @parallel
 def basic_setup():
+    """
+    """
     apt_install('build-essential')
     apt_install('python-dev')
     apt_install('python-setuptools')
-    apt_install('python-virtualenv')
     apt_install('git')
     easy_install('pip')
+    virtualenv_setup()
+
+
+@task
+@parallel
+def virtualenv_setup():
+    apt_install('virtualenv python-virtualenv')
+    pip_install('virtualenvwrapper')
+    run("echo 'export WORKON_HOME=~/.venvs' >> ~/.bashrc")
+    run("echo 'mkdir -p $WORKON_HOME' >> ~/.bashrc")
+    run("echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc")
+
+
+@task
+@parallel
+def virtualenv_create():
+    run("mkvirtualenv --python=/usr/bin/python3.4 prometheus_panadata34")
+    with cd(PROJECT_DIR):
+        run("setvirtualenv")
 
 
 @task
@@ -45,11 +66,15 @@ def install_repo(root='/var/www/', folder_name='prometheus_panadata'):
 @task
 @parallel
 def install_server():
+    """
+    """
     # install basic stuff
     basic_setup()
 
     # set up repo
     install_repo()
+
+    # create virtualenv
 
     # set up DB connection
 
