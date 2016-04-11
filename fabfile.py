@@ -18,8 +18,7 @@ env.roledefs.update(prod_roles)
 env.use_ssh_config = True
 env.venvs_root = '~/.virtualenvs/'
 env.venv_name = 'prometheus_panadata34'
-# env.activate = 'source {}{}/bin/activate'.format(env.venvs_root, env.venv_name)
-env.activate = 'source ~/.bashrc'
+env.activate = 'source {}{}/bin/activate'.format(env.venvs_root, env.venv_name)
 
 PROJECT_DIR = '/var/www/prometheus_panadata'
 
