@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from fabric.api import *
 from fab_config import prod_roles
+from contextlib import contextmanager as _contextmanager
 
 __author__ = 'miguelfg'
 
@@ -15,6 +16,10 @@ env.roledefs = {
 env.roledefs.update(prod_roles)
 
 env.use_ssh_config = True
+env.venvs_root = '~/.virtualenvs/'
+env.venv_name = 'prometheus_panadata34'
+# env.activate = 'source {}{}/bin/activate'.format(env.venvs_root, env.venv_name)
+env.activate = 'source ~/.bashrc'
 
 PROJECT_DIR = '/var/www/prometheus_panadata'
 
@@ -39,17 +44,30 @@ def basic_setup():
 def virtualenv_setup():
     apt_install('virtualenv python-virtualenv')
     pip_install('virtualenvwrapper')
-    run("echo 'export WORKON_HOME=~/.venvs' >> ~/.bashrc")
+    run("echo 'export WORKON_HOME={}' >> ~/.bashrc".format(env.venvs_root))
     run("echo 'mkdir -p $WORKON_HOME' >> ~/.bashrc")
     run("echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc")
+
+
+@_contextmanager
+def virtualenv():
+    with prefix(env.activate):
+        yield
 
 
 @task
 @parallel
 def virtualenv_create():
-    run("mkvirtualenv --python=/usr/bin/python3.4 prometheus_panadata34")
-    with cd(PROJECT_DIR):
-        run("setvirtualenv")
+    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
+        run("mkvirtualenv --python=/usr/bin/python3.4 " + env.venv_name)
+        with cd(PROJECT_DIR):
+            run("setvirtualenvproject")
+
+
+@task
+def pip_freeze():
+    with virtualenv():
+        run("pip freeze")
 
 
 @task
@@ -75,12 +93,14 @@ def install_server():
     install_repo()
 
     # create virtualenv
+    virtualenv_create()
 
     # set up DB connection
 
     # install requirements
-    with cd(env.user_home):
-        with_virtualenv(pip_install('-r requirements.txt'))
+    with cd(PROJECT_DIR):
+        with virtualenv():
+            pip_install('-r requirements.txt')
 
         # set permission and ownership to user!
 
