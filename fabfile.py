@@ -2,35 +2,13 @@
 import time
 
 from fabric.colors import *
-from fabric.api import *
-from fab_config import prod_roles
+from fabric.api import task, parallel, run, prefix, cd, sudo, settings
+from fab_config import prod_roles, env
+from fab_config import PROJECTS_ROOT, PROJECT_DIR, REPO_URL, PROJECT_FOLDER_NAME
 from contextlib import contextmanager as _contextmanager
 
 __author__ = 'miguelfg'
 
-
-###########
-# CONFIG
-###########
-env.roledefs = {
-    'test': ['localhost'],
-    'dev': ['localhost'],
-}
-env.roledefs.update(prod_roles)
-
-env.use_ssh_config = True
-env.venvs_root = '~/.virtualenvs/'
-env.venv_name = 'prometheus_panadata34'
-env.activate = 'source {}{}/bin/activate'.format(env.venvs_root, env.venv_name)
-
-env.key_filename = '~/.ssh/id_rsa'
-env.forward_agent = True
-
-# REPO_URL = 'git@github.com:kiln/prometheus.git'
-REPO_URL = 'git@github.com:miguelfg/regdump.git'
-PROJECT_FOLDER_NAME = 'prometheus_panadata'
-PROJECTS_ROOT = '/var/www/'
-PROJECT_DIR = PROJECTS_ROOT + PROJECT_FOLDER_NAME
 
 ###########
 # COMMANDS
@@ -51,6 +29,9 @@ def basic_setup():
 @task
 @parallel
 def virtualenv_setup():
+    """
+    Install virtualenv, virtualenvwrapper, and configs them
+    """
     apt_install('virtualenv python-virtualenv')
     pip_install('virtualenvwrapper')
     run("echo 'export WORKON_HOME={}' >> ~/.bashrc".format(env.venvs_root))
@@ -60,34 +41,66 @@ def virtualenv_setup():
 
 @_contextmanager
 def virtualenv():
-    with prefix(env.activate):
-        yield
+    """
+    Context manager to run commands under an activated virtualenv
+    """
+    # with prefix(env.activate):
+    with prefix('WORKON_HOME=%s' % env.venvs_root):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
+            with prefix('workon %s' % env.venv_name):
+                yield
 
 
 @task
 @parallel
 def virtualenv_create():
+    """
+    Creates a new virtualenv and sets the project directory of virtualenvwrapper variable
+    """
     with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
-        run("mkvirtualenv --python=/usr/bin/python3.4 " + env.venv_name)
+        run("mkvirtualenv " + env.venv_name)
         with cd(PROJECT_DIR):
             run("setvirtualenvproject")
 
 
 @task
+def echo_venv(something):
+    with virtualenv():
+        run('echo $%s' % something)
+
+
+@task
 def pip_freeze():
+    """
+    Prints external libs installed in project's virtualenv
+    """
     with virtualenv():
         run("pip freeze")
 
 
 @task
-def install_repo(root='/var/www/', folder_name='prometheus_panadata'):
+def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLDER_NAME):
     """
     Clones the repo into a local directory
     """
+    # TODO: not working for private repos
     with settings(warn_only=True):
-        run('sudo mkdir -p {}'.format(root))
+        run('sudo mkdir -p {}'.format(root + folder_name))
         with cd(root):
-            run('sudo git clone https://github.com/miguelfg/regdump ' + folder_name)
+            run('sudo chown {}:{} {}'.format(env.user, env.user, folder_name))
+            run('git clone ' + repo_url + ' ' + folder_name)
+
+        with cd(PROJECT_DIR):
+            run('mkdir data/')
+            run('mkdir logs/')
+
+
+@task
+@parallel
+def install_requirements(req_file='-r requirements.txt', upgrade=' --upgrade '):
+    with virtualenv():
+        with cd(PROJECT_DIR):
+            pip_install(upgrade + req_file)
 
 
 @task
@@ -126,6 +139,7 @@ def push_repo(repo_dir=PROJECT_DIR, message=None, branch='master'):
             message = 'pushed changes automatically on {}'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
         run('git commit -m "{}"'.format(message))
         run('git push origin {}'.format(branch))
+
 
 @task
 def pull_repo(repo_dir=PROJECT_DIR):
