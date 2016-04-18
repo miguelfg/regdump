@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
+
+from fabric.colors import *
 from fabric.api import *
 from fab_config import prod_roles
 from contextlib import contextmanager as _contextmanager
@@ -21,7 +23,14 @@ env.venvs_root = '~/.virtualenvs/'
 env.venv_name = 'prometheus_panadata34'
 env.activate = 'source {}{}/bin/activate'.format(env.venvs_root, env.venv_name)
 
-PROJECT_DIR = '/var/www/prometheus_panadata'
+env.key_filename = '~/.ssh/id_rsa'
+env.forward_agent = True
+
+# REPO_URL = 'git@github.com:kiln/prometheus.git'
+REPO_URL = 'git@github.com:miguelfg/regdump.git'
+PROJECT_FOLDER_NAME = 'prometheus_panadata'
+PROJECTS_ROOT = '/var/www/'
+PROJECT_DIR = PROJECTS_ROOT + PROJECT_FOLDER_NAME
 
 ###########
 # COMMANDS
@@ -106,6 +115,25 @@ def install_server():
         # TODO: set db env variable
 
 
+@task
+def push_repo(repo_dir=PROJECT_DIR, message=None, branch='master'):
+    """
+    Runs git push on server's project directory
+    """
+    with cd(repo_dir):
+        run('git add .')
+        if not message:
+            message = 'pushed changes automatically on {}'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+        run('git commit -m "{}"'.format(message))
+        run('git push origin {}'.format(branch))
+
+@task
+def pull_repo(repo_dir=PROJECT_DIR):
+    """
+    Runs git pull on server's project directory
+    """
+    with cd(repo_dir):
+        run('git pull')
 # @task
 # @parallel
 # def TODO: reg_dump():
