@@ -79,6 +79,31 @@ def pip_freeze():
 
 
 @task
+def ll(dir=PROJECTS_ROOT):
+    """
+    List the given directory
+    """
+    run('ls -l {}'.format(dir))
+
+
+@task
+def add_sudoer(username):
+    """
+    Adds a user as sudoer
+    """
+    run('sudo adduser {} sudo'.format(username))
+
+
+@task
+def delete_repo(root=PROJECTS_ROOT, folder_name=PROJECT_FOLDER_NAME):
+    """
+    Removes the installed repo in the given directory
+    """
+    with cd(root):
+        run('sudo rm -rf {}'.format(folder_name))
+
+
+@task
 def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLDER_NAME):
     """
     Clones the repo into a local directory
@@ -87,7 +112,7 @@ def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLD
     with settings(warn_only=True):
         run('sudo mkdir -p {}'.format(root + folder_name))
         with cd(root):
-            run('sudo chown {}:{} {}'.format(env.user, env.user, folder_name))
+            run('sudo chown {}:{} {}'.format(env.user, env.group, folder_name))
             run('git clone ' + repo_url + ' ' + folder_name)
 
         with cd(PROJECT_DIR):
