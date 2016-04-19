@@ -21,6 +21,7 @@ def basic_setup():
     apt_install('build-essential')
     apt_install('python-dev')
     apt_install('python-setuptools')
+    apt_install('libyaml-dev libpython2.7-dev')
     apt_install('git')
     easy_install('pip')
     virtualenv_setup()
