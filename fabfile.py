@@ -138,13 +138,14 @@ def install_requirements(req_file='-r requirements.txt', upgrade=' --upgrade '):
             pip_install(upgrade + req_file)
 
 
-
-
 @task
 @parallel
 def install_server():
     """
     """
+    # set server's hostname
+    set_host_name()
+
     # install basic stuff
     basic_setup()
 
@@ -229,6 +230,17 @@ def truncate_db():
 @task
 def host_type():
     run('uname -a')
+
+
+@task
+def set_host_name(host=None):
+    hostname = host if host else env.host_string
+    if '@' in hostname:
+        hostname = hostname.rsplit('@')[1]
+    if ':' in hostname:
+        hostname = hostname.split(':')[0]
+    sudo('echo "{}" > /etc/hostname'.format(hostname))
+    sudo('service hostname restart')
 
 
 ###########
