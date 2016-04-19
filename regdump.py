@@ -33,6 +33,9 @@ if __name__ == "__main__":
     if not args.stop:
         args.stop = args.start + args.size
 
+    # always add 1, as it's meant to stop at given id and not before
+    args.stop += 1
+
     logger.info('it will scrape from %i to %i with steps of %i', args.start, args.stop, args.step)
     sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
     logger.info('regdump finished')
