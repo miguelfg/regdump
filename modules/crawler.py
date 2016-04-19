@@ -60,11 +60,16 @@ def parse_sociedad_html(html):
     if parser.exists(html):
         soup = BeautifulSoup(html, 'html.parser', parse_only=SoupStrainer('p'))
         sociedad = scrape_sociedad_data(soup)
-        logger.info('found sociedad %s', sociedad.nombre)
-        personas, asociaciones = scrape_personas(soup)
-        logger.debug('found %i personas', len(personas))
-        logger.debug('found %i asociaciones', len(asociaciones))
-        return db_worker.resolve_sociedad(sociedad, personas, asociaciones)
+        if sociedad:
+            logger.info('found sociedad %s', sociedad.nombre)
+            personas, asociaciones = scrape_personas(soup)
+            logger.debug('found %i personas', len(personas))
+            logger.debug('found %i asociaciones', len(asociaciones))
+            return db_worker.resolve_sociedad(sociedad, personas, asociaciones)
+        else:
+            logger.warn("Error with html: {}".format(html))
+
+    return None
 
 
 def scrape_personas(soup):
@@ -82,6 +87,7 @@ def scrape_sociedad_directores(soup):
         directores = {Persona(persona) for persona in parser.collect_directores(soup)}
     except Exception as e:
         print(e)
+        logger.exception("Error scraping directors on soup: {}".format(soup.prettify()))
         return set()
     return directores
 
@@ -91,6 +97,7 @@ def scrape_sociedad_subscriptores(soup):
         subscriptores = {Persona(persona) for persona in parser.collect_subscriptores(soup)}
     except Exception as e:
         print(e)
+        logger.exception("Error scraping subscriptores on soup: {}".format(soup.prettify()))
         return {}
     return subscriptores
 
@@ -101,6 +108,7 @@ def scrape_sociedad_dignatarios(soup):
                        parser.collect_dignatarios(soup).items()}
     except Exception as e:
         print(e)
+        logger.exception("Error scraping dignatarios on soup: {}".format(soup.prettify()))
         return {}
     return dignatarios
 
@@ -110,7 +118,12 @@ def unpack_personas_in_dignatarios(dignatarios):
 
 
 def scrape_sociedad_data(soup):
-    sociedad = Sociedad(parser.collect_nombre_sociedad(soup), parser.collect_ficha(soup))
+    try:
+        sociedad = Sociedad(parser.collect_nombre_sociedad(soup), parser.collect_ficha(soup))
+    except:
+        logger.exception('Error parsing sociedad or ficha from soup {}'.format(soup.prettify()))
+        return None
+
     sociedad.fecha_registro = parser.collect_fecha_registro(soup)
     sociedad.provincia = parser.collect_provincia(soup)
     sociedad.notaria = parser.collect_notaria(soup)
