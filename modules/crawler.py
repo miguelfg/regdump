@@ -13,7 +13,7 @@ import urllib.request
 from modules.helper import get_logger
 logger = get_logger('crawler')
 
-SLEEP_SECS = int(os.getenv('PANADATA_SLEEP_SECS', 4))
+SLEEP_SECS = float(os.getenv('PANADATA_SLEEP_SECS', 4))
 
 user_agents = [
     'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0',
