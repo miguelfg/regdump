@@ -26,5 +26,4 @@ prod_roles = {
 env.roledefs.update(prod_roles)
 
 env.use_ssh_config = True
-# env.key_filename = '~/.ssh/id_rsa'
-# env.forward_agent = True
+env.forward_agent = True

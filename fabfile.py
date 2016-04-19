@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import time
 
 from fabric.colors import *
@@ -108,16 +109,16 @@ def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLD
     """
     Clones the repo into a local directory
     """
-    # TODO: not working for private repos
-    with settings(warn_only=True):
-        run('sudo mkdir -p {}'.format(root + folder_name))
-        with cd(root):
-            run('sudo chown {}:{} {}'.format(env.user, env.group, folder_name))
-            run('git clone ' + repo_url + ' ' + folder_name)
+    with cd('/tmp'):
+        run('git clone ' + repo_url + ' ' + folder_name)
 
-        with cd(PROJECT_DIR):
-            run('mkdir data/')
-            run('mkdir logs/')
+    with cd(root):
+        run('sudo mv /tmp/{} .'.format(folder_name))
+
+    project_dir = root + folder_name if root.endswith(os.sep) else root + os.sep + folder_name
+    with cd(project_dir):
+        run('mkdir data/')
+        run('mkdir logs/')
 
 
 @task
