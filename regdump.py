@@ -2,6 +2,7 @@
 import argparse
 import logging.config
 import os
+import socket
 
 import yaml
 
@@ -12,9 +13,21 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+
 # create logger
+class ContextFilter(logging.Filter):
+    hostname = socket.gethostname()
+
+    def filter(self, record):
+        record.hostname = ContextFilter.hostname
+        return True
+
+
+f = ContextFilter()
 logging.config.dictConfig(yaml.load(open('logging.yaml', 'r').read()))
 logger = logging.getLogger('regdump')
+logger.addFilter(f)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Query registro-publico.gob.pa for sociedades.')

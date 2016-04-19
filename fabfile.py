@@ -202,6 +202,25 @@ def reg_dump(start=None, stop=None, size=None, step=None):
                 args += ' --step=' + step
             run('python regdump.py' + args)
 
+
+@task
+def tail_history(lines=20):
+    """
+    Tails the history log
+    """
+    with virtualenv():
+        with cd(PROJECT_DIR):
+            run('tail -n {} history.log'.format(lines))
+
+
+@task
+def truncate_db():
+    """
+    Truncates all the data of the db
+    """
+    pass
+
+
 # def TODO: reg_dump_test():
 # def TODO: reg_dump_check_history_log():
 # def TODO: reg_dump_check_db_records():
