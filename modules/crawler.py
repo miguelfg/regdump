@@ -24,7 +24,6 @@ user_agents = [
     'Opera/7.51 (Windows NT 5.1; U)',
 ]
 old_fichas = db_worker.get_fichas()
-# old_fichas = set()
 
 
 def query_url(page, query):

@@ -27,19 +27,12 @@ if __name__ == "__main__":
     logger.info('regdump started')
 
     if args.start is None:
-        # get last index of record in database
-        # sociedades_ids = crawler.old_fichas
-        # print(len(sociedades_ids))
-        # print(max(sociedades_ids))
-        # max_id = max(sociedades_ids)
-        # args.start = max_id
         args.start = db_worker.find_max_ficha()
         logger.info('found %i sociedades already in DB', args.start)
 
     if not args.stop:
         args.stop = args.start + args.size
 
-        logger.info('it will scrape from %i to %i', args.start, args.stop)
-        sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
-
+    logger.info('it will scrape from %i to %i with steps of %i', args.start, args.stop, args.step)
+    sociedades = crawler.brute_sociedades(args.start, args.stop, args.step)
     logger.info('regdump finished')
