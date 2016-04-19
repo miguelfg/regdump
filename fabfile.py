@@ -190,6 +190,17 @@ def pull_repo(repo_dir=PROJECT_DIR):
 
 @task
 def reg_dump(start=None, stop=None, size=None, step=None):
+    """
+    The real scraper process.
+    :param start:
+    :param stop:
+    :param size:
+    :param step:
+    :return:
+    It's meant to be executed like:
+    python reg_dump --start 200000 --stop 1000000 --step <<server hostname id>>
+    python reg_dump --start 200000 --stop 1000000 --step hostname_id
+    """
     with virtualenv():
         with cd(PROJECT_DIR):
             args = ''
@@ -200,6 +211,9 @@ def reg_dump(start=None, stop=None, size=None, step=None):
             if size:
                 args += ' --size=' + size
             if step:
+                if step == 'hostname_id':
+                    import socket
+                    step = str(socket.gethostname()).rsplit('-', 1)[1]
                 args += ' --step=' + step
             run('python regdump.py' + args)
 
