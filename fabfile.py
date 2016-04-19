@@ -27,18 +27,6 @@ def basic_setup():
     virtualenv_setup()
 
 
-@_contextmanager
-def virtualenv():
-    """
-    Context manager to run commands under an activated virtualenv
-    """
-    # with prefix(env.activate):
-    with prefix('WORKON_HOME=%s' % env.venvs_root):
-        with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
-            with prefix('workon %s' % env.venv_name):
-                yield
-
-
 @task
 @parallel
 def virtualenv_setup():
@@ -46,7 +34,7 @@ def virtualenv_setup():
     Install virtualenv, virtualenvwrapper, and configs them
     """
     apt_install('virtualenv python-virtualenv')
-    pip_install('virtualenvwrapper')
+    pip_install('virtualenvwrapper', globally=True)
     run("echo 'export WORKON_HOME={}' >> ~/.bashrc".format(env.venvs_root))
     run("echo 'mkdir -p $WORKON_HOME' >> ~/.bashrc")
     run("echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc")
@@ -146,7 +134,10 @@ def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLD
 def install_requirements(req_file='-r requirements.txt', upgrade=' --upgrade '):
     with virtualenv():
         with cd(PROJECT_DIR):
-            run('pip install ' + upgrade + req_file)
+            # run('pip install ' + upgrade + req_file)
+            pip_install(upgrade + req_file)
+
+
 
 
 @task
@@ -224,6 +215,7 @@ def host_type():
 ###########
 # UTILITIES
 ###########
+@task
 def apt_install(package):
     """
     Install a single package on the remote server with Apt.
@@ -231,6 +223,7 @@ def apt_install(package):
     sudo('aptitude install -y %s' % package)
 
 
+@task
 def easy_install(package):
     """
     Install a single package on the remote server with easy_install.
@@ -238,15 +231,26 @@ def easy_install(package):
     sudo('easy_install %s' % package)
 
 
-def pip_install(package):
+@task
+def pip_install(package, globally=False):
     """
     Install a single package on the remote server with pip.
     """
-    sudo('pip install %s' % package)
+    if globally:
+        sudo('pip install %s' % package)
+    else:
+        with virtualenv():
+            run('pip install %s' % package)
 
 
-def with_virtualenv(command):
+@_contextmanager
+def virtualenv():
     """
-    Executes a command in this project's virtual environment.
+    Context manager to run commands under an activated virtualenv
     """
-    run('source bin/activate && %s' % command)
+    # with prefix(env.activate):
+    with prefix('WORKON_HOME=%s' % env.venvs_root):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
+            with prefix('workon %s' % env.venv_name):
+                yield
+
