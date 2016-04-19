@@ -1,32 +1,18 @@
 #!/usr/bin/python3
 import argparse
-import logging.config
 import os
-import socket
 
-import yaml
 
 from modules import crawler
-from modules import parser, db_worker
+from modules import db_worker
+from modules.helper import get_logger
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 
-# create logger
-class ContextFilter(logging.Filter):
-    hostname = socket.gethostname()
-
-    def filter(self, record):
-        record.hostname = ContextFilter.hostname
-        return True
-
-
-f = ContextFilter()
-logging.config.dictConfig(yaml.load(open('logging.yaml', 'r').read()))
-logger = logging.getLogger('regdump')
-logger.addFilter(f)
+logger = get_logger('regdump')
 
 
 if __name__ == "__main__":

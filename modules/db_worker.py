@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 import Classes
 import os
 from time import sleep
-import logging
+from modules.helper import get_logger
 
 db_url = os.environ['PANADATA_DB']
 # engine = create_engine(db_url, convert_unicode=True, encoding='latin-1',echo=False)
@@ -11,7 +11,9 @@ engine = create_engine(db_url, convert_unicode=True, encoding='utf-8', echo=Fals
 
 session_maker = sessionmaker(bind=engine)
 Classes.Base.metadata.create_all(engine)
-logger = logging.getLogger('db_worker')
+
+logger = get_logger('db_worker')
+
 
 def resolve_asociaciones(personas,asociaciones,session):
     personas = list(personas)
