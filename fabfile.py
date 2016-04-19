@@ -145,7 +145,7 @@ def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLD
 def install_requirements(req_file='-r requirements.txt', upgrade=' --upgrade '):
     with virtualenv():
         with cd(PROJECT_DIR):
-            pip_install(upgrade + req_file)
+            run('pip install ' + upgrade + req_file)
 
 
 @task
