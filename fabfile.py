@@ -15,7 +15,6 @@ __author__ = 'miguelfg'
 # COMMANDS
 ###########
 @task
-@parallel
 def basic_setup():
     """
     """
@@ -25,19 +24,6 @@ def basic_setup():
     apt_install('git')
     easy_install('pip')
     virtualenv_setup()
-
-
-@task
-@parallel
-def virtualenv_setup():
-    """
-    Install virtualenv, virtualenvwrapper, and configs them
-    """
-    apt_install('virtualenv python-virtualenv')
-    pip_install('virtualenvwrapper')
-    run("echo 'export WORKON_HOME={}' >> ~/.bashrc".format(env.venvs_root))
-    run("echo 'mkdir -p $WORKON_HOME' >> ~/.bashrc")
-    run("echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc")
 
 
 @_contextmanager
@@ -54,14 +40,48 @@ def virtualenv():
 
 @task
 @parallel
-def virtualenv_create():
+def virtualenv_setup():
+    """
+    Install virtualenv, virtualenvwrapper, and configs them
+    """
+    apt_install('virtualenv python-virtualenv')
+    pip_install('virtualenvwrapper')
+    run("echo 'export WORKON_HOME={}' >> ~/.bashrc".format(env.venvs_root))
+    run("echo 'mkdir -p $WORKON_HOME' >> ~/.bashrc")
+    run("echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc")
+
+
+@task
+def virtualenv_add_to_postactivate(line):
+    """
+    Add a line to the postactivate script of current virtualenv
+    """
+    with cd(env.venvs_root):
+        run("echo '' >> {}/bin/postactivate".format(env.venv_name))
+        run("echo '{}' >> {}/bin/postactivate".format(line, env.venv_name))
+        run("echo '' >> {}/bin/postactivate".format(env.venv_name))
+
+
+@task
+@parallel
+def virtualenv_create(python='python2.7'):
     """
     Creates a new virtualenv and sets the project directory of virtualenvwrapper variable
     """
     with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
-        run("mkvirtualenv " + env.venv_name)
+        run("mkvirtualenv --python=/usr/bin/{} {}".format(python, env.venv_name))
         with cd(PROJECT_DIR):
             run("setvirtualenvproject")
+
+
+@task
+@parallel
+def virtualenv_check_python_version():
+    """
+    Check python version installed in current virutalenv
+    """
+    with virtualenv():
+        run("python -V")
 
 
 @task
@@ -122,7 +142,6 @@ def install_repo(repo_url=REPO_URL, root=PROJECTS_ROOT, folder_name=PROJECT_FOLD
 
 
 @task
-@parallel
 def install_requirements(req_file='-r requirements.txt', upgrade=' --upgrade '):
     with virtualenv():
         with cd(PROJECT_DIR):
@@ -174,9 +193,23 @@ def pull_repo(repo_dir=PROJECT_DIR):
     """
     with cd(repo_dir):
         run('git pull')
-# @task
-# @parallel
-# def TODO: reg_dump():
+
+
+@task
+def reg_dump(start=None, stop=None, size=None, step=None):
+    with virtualenv():
+        with cd(PROJECT_DIR):
+            args = ''
+            if start:
+                args += ' --start=' + start
+            if stop:
+                args += ' --stop=' + stop
+            if size:
+                args += ' --size=' + size
+            if step:
+                args += ' --step=' + step
+            run('python regdump.py' + args)
+
 # def TODO: reg_dump_test():
 # def TODO: reg_dump_check_history_log():
 # def TODO: reg_dump_check_db_records():
