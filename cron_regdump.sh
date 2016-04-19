@@ -8,6 +8,6 @@ source bin/activate
 # virtualenv has configured).
 
 export PANADATA_DB='sqlite:////home/miguelfg/workspace/projects/apache_solr/prometheus/src/panadata_regdump/data/panama_registry.db'
-export PANADATA_SLEEP_SECS=1
+export PANADATA_SLEEP_SECS=0.5
 python /home/miguelfg/workspace/projects/apache_solr/prometheus/src/panadata_regdump/regdump.py --size 10
 #cdproject && python regdump.py --size 1
