@@ -1,8 +1,7 @@
 import requests
 from Classes import Sociedad, Persona, Asociacion, Fundacion, FundacionPersonas
 from queue import Empty
-import logging
-import Classes
+import os
 from Classes import *
 
 from modules import parser, db_worker
@@ -13,6 +12,8 @@ import urllib.request
 
 from modules.helper import get_logger
 logger = get_logger('crawler')
+
+SLEEP_SECS = int(os.getenv('PANADATA_SLEEP_SECS', 4))
 
 user_agents = [
     'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0',
@@ -48,7 +49,7 @@ def brute_sociedades(start,stop,step):
             with urllib.request.urlopen(url) as r:
                 sociedad = parse_sociedad_html(r.read())
             queue.append(sociedad)
-            sleep(4)
+            sleep(SLEEP_SECS)
 
     logger.info('found %i sociedades', len(queue))
 
