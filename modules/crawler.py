@@ -66,7 +66,10 @@ def brute_sociedades(start, stop, step):
                 queue.append(sociedad)
                 sleep(SLEEP_SECS)
 
-    logger.info('found %i sociedades', len(queue))
+    parsed_societies = [soc for soc in queue if soc]
+    logger.info('found %i sociedades from %i requested', len(parsed_societies), len(queue))
+    if len(parsed_societies) == 0:
+        logger.warn('Not parsed any society on a whole run for ranges {} to {} with step {}'.format(start, stop, step))
 
     return queue
 
