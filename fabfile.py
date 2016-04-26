@@ -200,6 +200,7 @@ def reg_dump(start=None, stop=None, size=None, step=None):
     It's meant to be executed like:
     python reg_dump --start 200000 --stop 1000000 --step <<server hostname id>>
     python reg_dump --start 200000 --stop 1000000 --step hostname_id
+    python reg_dump --start 216543 --stop 1000000 --step hostname_id
     """
     with virtualenv():
         with cd(PROJECT_DIR):
