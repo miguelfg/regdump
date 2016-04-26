@@ -7,6 +7,7 @@ from time import sleep
 from datetime import datetime
 from random import sample
 import urllib.request
+from urllib.error import URLError, HTTPError
 
 from modules.helper import get_logger
 logger = get_logger('crawler')
@@ -37,28 +38,24 @@ def ficha_url(ficha):
     return ('http://201.224.39.199/scripts/nwwisapi.dll/conweb/MESAMENU?TODO=SHOW&ID=%s' % str(ficha))
 
 
-def brute_sociedades(start,stop,step):
+def brute_sociedades(start, stop, step):
     fichas = range(start, stop, step)
-    queue=[]
+    queue = []
+
     for ficha in fichas:
         if ficha not in old_fichas:
             ua = sample(user_agents, 1)[0]
             headers = {'User-Agent': ua}
             url = ficha_url(ficha)
             req = urllib.request.Request(url, headers=headers)
-            # req.add_header('Referer', ua)
-            # req.add_header('User-Agent', ua)
-            from urllib.error import URLError, HTTPError
+            logger.debug('User Agent used in request for ficha {} was {} '.format(ficha, ua))
             try:
-                # response = urlopen(req)
                 resp = urllib.request.urlopen(req)
             except HTTPError as e:
                 logger.error('HTTP Error code: ', e.code)
             except URLError as e:
                 logger.error('URL Error Reason: ', e.reason)
             else:
-            # with urllib.request.urlopen(req) as r:
-            #     logger.info('response to %i returned status'.format(i, resp.), len(queue))
                 ts = datetime.now().strftime("%Y-%m-%d_%I-%M-%S")
                 html = resp.read()
                 html = html.decode('ISO-8859-1', 'ignore')
