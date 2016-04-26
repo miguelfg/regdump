@@ -219,6 +219,15 @@ def reg_dump(start=None, stop=None, size=None, step=None):
 
 
 @task
+def max_sociedad():
+    """
+    """
+    with virtualenv():
+        with cd(PROJECT_DIR):
+            run('python max_sociedades.py')
+
+
+@task
 def tail_history(lines=20):
     """
     Tails the history log
