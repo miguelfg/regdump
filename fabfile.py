@@ -219,7 +219,7 @@ def reg_dump(start=None, stop=None, size=None, step=None):
 
 
 @task
-def max_sociedad():
+def max_sociedades():
     """
     """
     with virtualenv():
