@@ -21,7 +21,22 @@ env.roledefs = {}
 prod_roles = {
     'test': ['localhost'],
     'dev': ['localhost'],
-    'prod': ['mfiandor@scraper-1']
+    'prod_few': [
+        'mfiandor@scraper-1',
+        'mfiandor@scraper-2',
+    ],
+    'prod': [
+        'mfiandor@scraper-1',
+        'mfiandor@scraper-2',
+        'mfiandor@scraper-3',
+        'mfiandor@scraper-4',
+        'mfiandor@scraper-5',
+        'mfiandor@scraper-6',
+        'mfiandor@scraper-7',
+        'mfiandor@scraper-8',
+        'mfiandor@scraper-9',
+        'mfiandor@scraper-10',
+             ]
 }
 env.roledefs.update(prod_roles)
 

@@ -97,7 +97,7 @@ def ll(dir=PROJECTS_ROOT):
 
 
 @task
-def add_sudoer(username):
+def add_sudoer(username=env.user):
     """
     Adds a user as sudoer
     """
@@ -180,6 +180,7 @@ def push_repo(repo_dir=PROJECT_DIR, message=None, branch='master'):
 
 
 @task
+@parallel
 def pull_repo(repo_dir=PROJECT_DIR):
     """
     Runs git pull on server's project directory
@@ -198,9 +199,14 @@ def reg_dump(start=None, stop=None, size=None, step=None):
     :param step:
     :return:
     It's meant to be executed like:
-    python reg_dump --start 200000 --stop 1000000 --step <<server hostname id>>
-    python reg_dump --start 200000 --stop 1000000 --step hostname_id
-    python reg_dump --start 216543 --stop 1000000 --step hostname_id
+    python regdump.py --start 200000 --stop 1000000 --step <<server hostname id>>
+    python regdump.py --start 200000 --stop 1000000 --step hostname_id
+    python regdump.py --start 216544 --stop 1000000 --step hostname_id
+    python regdump.py --start 216541 --stop 900000 --step 1
+    python regdump.py --start 216544 --stop 900000 --step 4
+    fab -f fabfile.py -R prod reg_dump:start=216543,stop=900000,step=hostname_id
+    fab -f fabfile.py -H scraper-1 reg_dump:start=216543,stop=900000,step=1
+    fab -f fabfile.py -H scraper-2 reg_dump:start=216543,stop=900000,step=2
     """
     with virtualenv():
         with cd(PROJECT_DIR):
@@ -253,6 +259,7 @@ def truncate_db():
 
 @task
 def host_type():
+    run('hostname')
     run('uname -a')
 
 

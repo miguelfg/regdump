@@ -27,12 +27,26 @@ CREATE TABLE personas (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE personas (
+  id INTEGER NOT NULL,
+  nombre VARCHAR(50),
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL
+);
+
 CREATE TABLE asociaciones (
   persona_id INTEGER NOT NULL,
   sociedad_id INTEGER NOT NULL,
   rol VARCHAR(25) NOT NULL,
   PRIMARY KEY (persona_id, sociedad_id, rol),
   FOREIGN KEY(persona_id) REFERENCES personas (id),
+  FOREIGN KEY(sociedad_id) REFERENCES sociedades (ficha)
+);
+
+CREATE TABLE asociaciones (
+  persona_id INTEGER NOT NULL,
+  sociedad_id INTEGER NOT NULL,
+  rol VARCHAR(25) NOT NULL,
   FOREIGN KEY(sociedad_id) REFERENCES sociedades (ficha)
 );
 
@@ -63,6 +77,5 @@ CREATE TABLE fundacion_personas (
   fundacion_id INTEGER NOT NULL,
   rol VARCHAR(25) NOT NULL,
   PRIMARY KEY (persona_id, fundacion_id, rol),
-  FOREIGN KEY(persona_id) REFERENCES personas (id),
   FOREIGN KEY(fundacion_id) REFERENCES fundaciones (ficha)
 );
