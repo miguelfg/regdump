@@ -1,12 +1,10 @@
-import requests
-from Classes import Sociedad, Persona, Asociacion, Fundacion, FundacionPersonas
-from queue import Empty
 import os
 from Classes import *
 
 from modules import parser, db_worker
 from bs4 import BeautifulSoup, SoupStrainer
 from time import sleep
+from datetime import datetime
 from random import sample
 import urllib.request
 
@@ -14,6 +12,7 @@ from modules.helper import get_logger
 logger = get_logger('crawler')
 
 SLEEP_SECS = float(os.getenv('PANADATA_SLEEP_SECS', 4))
+FILES_DIR = os.getenv('PANADATA_FILES_DIR', None)
 
 user_agents = [
     'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0',
@@ -39,17 +38,36 @@ def ficha_url(ficha):
 
 
 def brute_sociedades(start,stop,step):
-    fichas = range(start,stop,step)
+    fichas = range(start, stop, step)
     queue=[]
     for ficha in fichas:
         if ficha not in old_fichas:
-            ua = sample(user_agents,1)[0]
-            headers={'User-Agent': ua}
+            ua = sample(user_agents, 1)[0]
+            headers = {'User-Agent': ua}
             url = ficha_url(ficha)
-            with urllib.request.urlopen(url) as r:
-                sociedad = parse_sociedad_html(r.read())
-            queue.append(sociedad)
-            sleep(SLEEP_SECS)
+            req = urllib.request.Request(url, headers=headers)
+            # req.add_header('Referer', ua)
+            # req.add_header('User-Agent', ua)
+            from urllib.error import URLError, HTTPError
+            try:
+                # response = urlopen(req)
+                resp = urllib.request.urlopen(req)
+            except HTTPError as e:
+                logger.error('HTTP Error code: ', e.code)
+            except URLError as e:
+                logger.error('URL Error Reason: ', e.reason)
+            else:
+            # with urllib.request.urlopen(req) as r:
+            #     logger.info('response to %i returned status'.format(i, resp.), len(queue))
+                ts = datetime.now().strftime("%Y-%m-%d_%I-%M-%S")
+                html = resp.read()
+                html = html.decode('ISO-8859-1', 'ignore')
+                if FILES_DIR and os.path.exists(FILES_DIR) and os.path.isdir(FILES_DIR):
+                    with open("{}{}sociedad_{}_on_{}.html".format(FILES_DIR, os.sep, ficha, ts), mode='w') as of:
+                        of.write(html)
+                sociedad = parse_sociedad_html(html)
+                queue.append(sociedad)
+                sleep(SLEEP_SECS)
 
     logger.info('found %i sociedades', len(queue))
 
@@ -57,7 +75,6 @@ def brute_sociedades(start,stop,step):
 
 
 def parse_sociedad_html(html):
-    html = html.decode('ISO-8859-1', 'ignore')
     if parser.exists(html):
         soup = BeautifulSoup(html, 'html.parser', parse_only=SoupStrainer('p'))
         sociedad = scrape_sociedad_data(soup)

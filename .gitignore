@@ -14,3 +14,5 @@ history.log
 *.sqlite3
 
 fab_config.py
+
+data/htmls/
