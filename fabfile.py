@@ -310,6 +310,18 @@ def tail_htmls_downloaded():
 
 @task
 @parallel
+def ps_process(name):
+    run('ps -A | grep {}'.format(name))
+
+
+@task
+@parallel
+def ps_scraper_running():
+    ps_process('python')
+
+
+@task
+@parallel
 def kill_script(script):
     run('"pkill -f {}'.format(script))
 
