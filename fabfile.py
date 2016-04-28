@@ -258,12 +258,6 @@ def truncate_db():
 
 
 @task
-def host_type():
-    run('hostname')
-    run('uname -a')
-
-
-@task
 def set_host_name(host=None):
     hostname = host if host else env.host_string
     if '@' in hostname:
@@ -273,6 +267,67 @@ def set_host_name(host=None):
     sudo('echo "{}" > /etc/hostname'.format(hostname))
     sudo('service hostname restart')
 
+
+######################
+# MAINTENANCE
+######################
+
+@task
+def host_type():
+    run('hostname')
+    run('uname -a')
+
+
+@task
+@parallel
+def free_disk(disk='/dev/xvda1'):
+    run('df -Th | grep ' + disk)
+
+
+@task
+@parallel
+def size_folder(folder):
+    run('du -hs {}'.format(folder))
+
+
+@task
+@parallel
+def size_htmls_folder():
+    size_folder('{}/data/htmls'.format(PROJECT_DIR))
+
+
+@task
+@parallel
+def num_htmls_downloaded():
+    run('ls -l {}/data/htmls | wc -l'.format(PROJECT_DIR))
+
+
+@task
+@parallel
+def tail_htmls_downloaded():
+    run('ls -ltr {}/data/htmls | tail'.format(PROJECT_DIR))
+
+
+@task
+@parallel
+def kill_script(script):
+    run('"pkill -f {}'.format(script))
+
+
+@task
+@parallel
+def kill_scraper_sociedades():
+    kill_script('regdump.py')
+
+
+# TODO download htmls to local
+# TODO check errors in logs
+# TODO check warns in logs
+# TODO re-scrape some downloaded files
+# TODO re_scrape some
+# TODO only download html
+# TODO scrape fundaciones
+# TODO scrape personas on downloaded files
 
 ###########
 # UTILITIES
