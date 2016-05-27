@@ -4,7 +4,7 @@ import time
 
 from fabric.colors import *
 from fabric.api import task, parallel, run, prefix, cd, sudo, settings
-from fab_config import prod_roles, env
+from fab_config import env
 from fab_config import PROJECTS_ROOT, PROJECT_DIR, REPO_URL, PROJECT_FOLDER_NAME
 from contextlib import contextmanager as _contextmanager
 
